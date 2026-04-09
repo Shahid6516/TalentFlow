@@ -112,9 +112,14 @@ export const login = async (req, res) => {
         console.log(error);
     }
 }
+
 export const logout = async (req, res) => {
     try {
-        return res.status(200).cookie("token", "", { maxAge: 0 }).json({
+        return res.status(200).cookie("token", "", { 
+            maxAge: 0,
+            sameSite: 'none', 
+            secure: true 
+        }).json({
             message: "Logged out successfully.",
             success: true
         })
@@ -122,12 +127,20 @@ export const logout = async (req, res) => {
         console.log(error);
     }
 }
+
 export const updateProfile = async (req, res) => {
     try {
         const { fullname, email, phoneNumber, bio, skills } = req.body;
         
         const file = req.file;
         // cloudinary ayega idhar
+        if(!file){
+            return res.status(400).json({
+                message: "Resume file is required.",
+                success: false
+            })
+        }
+
         const fileUri = getDataUri(file);
         const cloudResponse = await cloudinary.uploader.upload(fileUri.content);
 
